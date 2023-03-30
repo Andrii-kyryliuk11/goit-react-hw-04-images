@@ -12,10 +12,10 @@ export default function Searchbar({
   const [prevSearch, setPrevSearch] = useState('');
 
   useEffect(() => {
-    toggleLoader();
     if (searchValue === '') {
       return;
     }
+    toggleLoader();
     searchImages(prevSearch, page).then(res => handleImages(res));
 
     return () => {};
