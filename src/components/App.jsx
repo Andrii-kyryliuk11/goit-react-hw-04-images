@@ -1,81 +1,54 @@
-import { Component } from 'react';
-import { Button } from './Button/Button';
-import { ImageGallery } from './ImageGallery/ImageGallery';
+import { useState } from 'react';
+import Button from './Button/Button';
+import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
-import { Searchbar } from './Searchbar/Searchbar';
+import Searchbar from './Searchbar/Searchbar';
 
-export class App extends Component {
-  state = {
-    data: [],
-    searchValue: '',
-    page: 1,
-    modalHidden: false,
-    largeImage: '',
-    showLoader: false,
+export default function App() {
+  const [data, setData] = useState([]);
+
+  const [page, setPage] = useState(1);
+  const [modalHidden, setModalHidden] = useState(false);
+  const [largeImage, setLargeImage] = useState('');
+  const [showLoader, setShowLoader] = useState(false);
+
+  const updateNewImagesArray = data => {
+    setData(data.hits);
   };
 
-  updateSearchValue = value => {
-    this.setState({ searchValue: value.trim() });
+  const updateImagesArray = data => {
+    setData(state => [...state, ...data.hits]);
   };
 
-  updateNewImagesArray = data => {
-    const images = data.hits;
-    this.setState({ data: images });
-    this.toggleLoader();
+  const updatePage = page => {
+    setPage(page);
   };
 
-  updateImagesArray = data => {
-    const images = data.hits;
-
-    this.setState(prevState => ({
-      data: [...prevState.data, ...images],
-    }));
-    this.toggleLoader();
+  const toggleModal = image => {
+    setModalHidden(state => !state);
+    setLargeImage(image);
   };
 
-  updatePage = page => {
-    this.setState({ page: page });
+  const toggleLoader = () => {
+    setShowLoader(state => !state);
   };
 
-  toggleModal = image => {
-    this.setState(prevState => ({
-      modalHidden: !prevState.modalHidden,
-      largeImage: image,
-    }));
-  };
+  return (
+    <div>
+      <Searchbar
+        handleImages={updateImagesArray}
+        handleNewImages={updateNewImagesArray}
+        page={page}
+        toggleLoader={toggleLoader}
+      />
 
-  toggleLoader = () => {
-    this.setState(prevState => ({
-      loaderHidden: !prevState.loaderHidden,
-    }));
-  };
-
-  render() {
-    const { data, largeImage, page, modalHidden, showLoader } = this.state;
-
-    return (
-      <div>
-        <Searchbar
-          handleSearchValue={this.updateSearchValue}
-          handleImages={this.updateImagesArray}
-          handleNewImages={this.updateNewImagesArray}
-          page={page}
-          toggleLoader={this.toggleLoader}
-        />
-
-        <ImageGallery data={data} toggleModal={this.toggleModal} />
-        {data.length >= 12 && (
-          <Button
-            handlePage={this.updatePage}
-            toggleLoader={this.toggleLoader}
-          />
-        )}
-        {modalHidden && (
-          <Modal image={largeImage} toggleModal={this.toggleModal} />
-        )}
-        {showLoader && <Loader />}
-      </div>
-    );
-  }
+      <ImageGallery data={data} toggleModal={toggleModal} />
+      {data.length >= 12 && (
+        <Button handlePage={updatePage} toggleLoader={toggleLoader} />
+      )}
+      {modalHidden && <Modal image={largeImage} toggleModal={toggleModal} />}
+      {showLoader && <Loader />}
+    </div>
+  );
 }

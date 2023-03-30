@@ -1,35 +1,23 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import css from './Button.module.css';
 
-export class Button extends Component {
-  state = {
-    page: 1,
-  };
+export default function Button({ handlePage, toggleLoader }) {
+  const [page, setPage] = useState(1);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { page } = this.state;
-    const { handlePage } = this.props;
-    if (prevState.page !== page) {
-      handlePage(page);
-    }
-  }
-  render() {
-    const { toggleLoader } = this.props;
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          toggleLoader();
-          this.setState(prevState => {
-            return {
-              page: prevState.page + 1,
-            };
-          });
-        }}
-        className={css.button}
-      >
-        Load more
-      </button>
-    );
-  }
+  useEffect(() => {
+    handlePage(page);
+  }, [handlePage, page]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        toggleLoader();
+        setPage(state => state + 1);
+      }}
+      className={css.button}
+    >
+      Load more
+    </button>
+  );
 }
